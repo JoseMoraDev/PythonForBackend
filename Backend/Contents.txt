@@ -1,0 +1,22 @@
+Python from zero to backend
+
+- Introducción
+- ¿Qué es un backend?
+- API y FastAPI
+- Type Hints
+- Configuración FastAPI
+- Hola mundo
+- Operación GET
+- Peticiones HTTP
+- Creación API
+- Path y Query
+- Operaciones POST, PUT y DELETE
+- HTTP status codes
+- Routers
+- Recursos estáticos
+- Autorización OAuth2
+- OAuth2 JWT
+- MongoDB
+- MongoDB Atlas
+- Despliegue en Deta *
+- Próximos pasos
