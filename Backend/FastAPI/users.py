@@ -1,15 +1,13 @@
 from fastapi import FastAPI
 
-
-#! to work with objects I need this, optherwise I work with plain JSON
+# to work with objects I need this, optherwise I work with plain JSON
 from pydantic import BaseModel 
 
 
-#! lauch: uvicorn users:app --reload
+# lauch: uvicorn users:app --reload
 app = FastAPI()
 
-
-#! Entity User - every entity wich implements BaseModel can be handled like a JSON object
+# Entity User - every entity wich implements BaseModel can be handled like a JSON object
 class User(BaseModel):
     id: int
     name: str
@@ -24,8 +22,8 @@ users_list = [
 ]
 
 
-#!plain JSON option - unused
-@app.get("/users")
+#plain JSON option - unused
+@app.get("/users2")
 async def usersjson():
     return [
         {"name": "Jose", "surname": "Mora", "url": "https://github.com/JoseMoraDev", "age": 38},
@@ -34,18 +32,15 @@ async def usersjson():
     ]
 
 
-#! class option - best choice
-    #? http://127.0.0.1:8000/users
-@app.get("/users")
+# class option - best choice
+@app.get("/users") # http://127.0.0.1:8000/users
 async def users():
     return users_list
     #* return User(name="Jose", surname="Mora", url="https://github.com/JoseMoraDev", age=38)
 
 
-#! like beofre, but with id at url path
-    #? http://127.0.0.1:8000/user/1
-
-@app.get("/user/{id}")
+# like beofre, but with id at url path
+@app.get("/user/{id}") # http://127.0.0.1:8000/user/1
 async def user(id: int):
     return search_user(id)
 
@@ -66,10 +61,8 @@ async def user(id: int):
 
 '''
 
-#! query option means 'key=value' at url path
-    #? http://127.0.0.1:8000/userquery/?id=1
-
-@app.get("/userquery/")
+# query option means 'key=value' at url path
+@app.get("/userquery/") # http://127.0.0.1:8000/userquery/?id=1
 async def user(id: int):
     return search_user(id)
 
@@ -87,11 +80,49 @@ async def user(id: int):
 
 '''
 
-#! outsource the user search function
-    
+# outsourcing the user search function
 def search_user(id: int):
     users = filter(lambda user: user.id == id, users_list)
     try:
         return list(users)[0]
     except:
         return {"error": "No se han encontrado el usuario"}
+
+
+
+#! create user
+@app.post("/user/")
+async def user(user: User):
+    if type(search_user(user.id)) == User: 
+        return { "error": "El usuario ya existe"}
+    users_list.append(user)
+    return "Usuario creado!"
+
+
+
+#! update user
+@app.put("/user/")
+async def user(user: User):
+    found = False
+    for index, saved_user in enumerate(users_list):
+        if saved_user.id == user.id:
+            users_list[index] = user
+            found = True
+    if not found:
+        return {"error": "No se ha actualizado el usuario"}
+    return user
+
+
+
+#! delete user
+@app.delete("/user/{id}")
+async def user(id: int):
+    found = False
+    for index, saved_user in enumerate(users_list):
+        if saved_user.id == id:
+            users_list[index] = user
+            del users_list[index]
+            found = True
+    if not found:
+        return {"error": "No se ha eliminado el usuario"}
+    return "Usuario eliminado"
