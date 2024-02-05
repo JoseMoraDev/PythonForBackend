@@ -1,11 +1,12 @@
-from fastapi import FastAPI
+from fastapi import APIRouter, HTTPException
 
 # to work with objects I need this, optherwise I work with plain JSON
 from pydantic import BaseModel 
 
+# lauch: uvicorn users:router --reload
+router = APIRouter()
 
-# lauch: uvicorn users:app --reload
-app = FastAPI()
+
 
 # Entity User - every entity wich implements BaseModel can be handled like a JSON object
 class User(BaseModel):
@@ -15,6 +16,8 @@ class User(BaseModel):
     url: str
     age: int
 
+
+
 users_list = [
     User(id=1, name="Jose", surname="Mora", url="https://github.com/JoseMoraDev", age=38),
     User(id=2, name="Miriam", surname="Durán", url="https://github.com/AnnieAmrod", age=28),
@@ -22,8 +25,9 @@ users_list = [
 ]
 
 
+
 #plain JSON option - unused
-@app.get("/users2")
+@router.get("/users2")
 async def usersjson():
     return [
         {"name": "Jose", "surname": "Mora", "url": "https://github.com/JoseMoraDev", "age": 38},
@@ -32,17 +36,21 @@ async def usersjson():
     ]
 
 
+
 # class option - best choice
-@app.get("/users") # http://127.0.0.1:8000/users
+@router.get("/users") # http://127.0.0.1:8000/users
 async def users():
     return users_list
     #* return User(name="Jose", surname="Mora", url="https://github.com/JoseMoraDev", age=38)
 
 
+
 # like beofre, but with id at url path
-@app.get("/user/{id}") # http://127.0.0.1:8000/user/1
+@router.get("/user/{id}") # http://127.0.0.1:8000/user/1
 async def user(id: int):
     return search_user(id)
+
+
 
 '''
     return list(users) is not a right choice because returns this:
@@ -61,13 +69,17 @@ async def user(id: int):
 
 '''
 
+
+
 # query option means 'key=value' at url path
-@app.get("/userquery/") # http://127.0.0.1:8000/userquery/?id=1
+@router.get("/userquery/") # http://127.0.0.1:8000/userquery/?id=1
 async def user(id: int):
     return search_user(id)
 
+
+
 '''
-@app.get("/userquery/")
+@router.get("/userquery/")
 async def user(id: int):
     print(id)
     users = filter(lambda user: user.id == id, users_list)
@@ -75,10 +87,11 @@ async def user(id: int):
     try:
         return list(users)[0]
     except:
-        return {"error": "No se han encontrado el usuario"}
-
+        return {"error": "User not found"}
 
 '''
+
+
 
 # outsourcing the user search function
 def search_user(id: int):
@@ -86,22 +99,29 @@ def search_user(id: int):
     try:
         return list(users)[0]
     except:
-        return {"error": "No se han encontrado el usuario"}
+        return {"error": "User not found"}
 
 
 
 #! create user
-@app.post("/user/")
+@router.post("/user/", response_model=User, status_code=201)
 async def user(user: User):
-    if type(search_user(user.id)) == User: 
-        return { "error": "El usuario ya existe"}
+    if type(search_user(user.id)) == User:
+        raise HTTPException(204, detail="The user already exists")
+        # return { "error": "The user already exists"}
     users_list.append(user)
-    return "Usuario creado!"
+    return "User created!"
+        # return was replaced by raise & HTTPException
+        # HTTPException is never thrown with return, but always with raise
+            # that's because raise spreads the exception, not only returns it
+        # detail
+            # success messages won't show detail
+            # error messages will show detail
 
 
 
 #! update user
-@app.put("/user/")
+@router.put("/user/")
 async def user(user: User):
     found = False
     for index, saved_user in enumerate(users_list):
@@ -109,13 +129,13 @@ async def user(user: User):
             users_list[index] = user
             found = True
     if not found:
-        return {"error": "No se ha actualizado el usuario"}
+        return {"error": "the user was not created"}
     return user
 
 
 
 #! delete user
-@app.delete("/user/{id}")
+@router.delete("/user/{id}")
 async def user(id: int):
     found = False
     for index, saved_user in enumerate(users_list):
@@ -124,5 +144,20 @@ async def user(id: int):
             del users_list[index]
             found = True
     if not found:
-        return {"error": "No se ha eliminado el usuario"}
-    return "Usuario eliminado"
+        return {"error": "The user was not deleted"}
+    return "User deleted"
+
+
+
+'''
+status codes
+
+    all:
+        https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
+    
+    most used in FastAPI
+        https://fastapi.tiangolo.com/tutorial/response-status-code/?h=used+codes#about-http-status-codes
+    
+    it's a good practice to use the standard codes instead of text messages
+
+'''
