@@ -1,22 +1,23 @@
-Python from zero to backend
-
-- Introducción
-- ¿Qué es un backend?
-- API y FastAPI
+FastAPI & Python
+---------------------
+- API & FastAPI
 - Type Hints
-- Configuración FastAPI
-- Hola mundo
-- Operación GET
-- Peticiones HTTP
-- Creación API
-- Path y Query
-- Operaciones POST, PUT y DELETE
+- FastAPI config
+- GET
+- HTTP request
+- API creation
+- Path & Query
+- POST, PUT & DELETE
 - HTTP status codes
 - Routers
-- Recursos estáticos
-- Autorización OAuth2
+- Static resources
+- OAuth2
 - OAuth2 JWT
 - MongoDB
 - MongoDB Atlas
-- Despliegue en Deta *
-- Próximos pasos
+- Deplo
+
+
+
+07/02/2024 
+before continue, user 2 must be able to login

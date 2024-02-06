@@ -16,6 +16,9 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
     #app.mount("/expositionURL"), StaticFiles(directory="directoryKind=static"), name="expositionName")
     # type http://127.0.0.1:8000/static/images/python.jpg at browser to see the jpg file
 
+
+
+
 @app.get("/") # get request @server will recieve this text --> The root is localhost
 async def root():
     return "Hello FastAPI!"
